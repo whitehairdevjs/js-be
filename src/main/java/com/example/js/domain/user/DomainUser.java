@@ -1,9 +1,9 @@
-package com.example.js.domain;
+package com.example.js.domain.user;
 
 import lombok.Data;
 
 @Data
-public class User {
+public class DomainUser {
     private String userId;
     private String userName;
     private String password;
