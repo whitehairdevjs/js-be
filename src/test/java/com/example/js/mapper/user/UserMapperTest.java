@@ -1,6 +1,6 @@
 package com.example.js.mapper.user;
 
-import com.example.js.domain.user.DomainUser;
+import com.example.js.dto.user.UserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,21 +15,20 @@ public class UserMapperTest {
 
     @Test
     public void testSelectUserById() {
-        DomainUser user = new DomainUser();
+        UserResponse user = new UserResponse();
         user.setUserId("user006");
-        DomainUser resultUser = userMapper.selectUserById(user);
+        UserResponse resultUser = userMapper.selectUserById(user);
 
         Assertions.assertNotNull(resultUser);
         Assertions.assertEquals(user.getUserId(), resultUser.getUserId());
 
         System.out.println("User id = " + resultUser.getUserId());
         System.out.println("User name = " + resultUser.getUserName());
-        System.out.println("User ip = " + resultUser.getAccessIp());
     }
 
     @Test
     public void testFindByUserId() {
-        DomainUser resultUser = userMapper.findByUserId("user001");
+        UserResponse resultUser = userMapper.findByUserId("user001");
 
         Assertions.assertNotNull(resultUser);
 

@@ -1,13 +1,13 @@
 package com.example.js.mapper.user;
 
-import com.example.js.domain.user.DomainUser;
+import com.example.js.dto.user.UserResponse;
 
 import java.util.List;
 
 public interface UserMapper {
-    DomainUser selectUserById(DomainUser user);
+    UserResponse selectUserById(UserResponse user);
 
-    DomainUser findByUserId(String userId);
+    UserResponse findByUserId(String userId);
 
     List<String> findRolesByUserId(String userId);
 }

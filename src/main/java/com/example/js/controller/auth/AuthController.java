@@ -1,5 +1,6 @@
 package com.example.js.controller.auth;
 
+import com.example.js.dto.user.UserResponse;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +38,7 @@ public class AuthController {
         );
 
         // ② DB에서 user, roles 조회
-        DomainUser user = userMapper.findByUserId(req.getUserId());
+        UserResponse user = userMapper.findByUserId(req.getUserId());
         List<String> roles = userMapper.findRolesByUserId(user.getUserId());
 
         // ③ JWT 생성 후 응답

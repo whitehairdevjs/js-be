@@ -1,6 +1,6 @@
 package com.example.js.service.auth;
 
-import com.example.js.domain.user.DomainUser;
+import com.example.js.dto.user.UserResponse;
 import com.example.js.service.user.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -26,19 +26,19 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        DomainUser domainUser = userService.findByUserId(userId);
+        UserResponse resUser = userService.findByUserId(userId);
 
-        if (domainUser == null) {
+        if (resUser == null) {
             throw new UsernameNotFoundException("User not found: " + userId);
         }
         // DB에서 가져온 role 문자열을 GrantedAuthority 리스트로 변환
-        List<GrantedAuthority> auths = userMapper.findRolesByUserId(domainUser.getUserId())
+        List<GrantedAuthority> auths = userMapper.findRolesByUserId(resUser.getUserId())
                 .stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        return User.withUsername(domainUser.getUserId())
-                .password(domainUser.getPassword())
+        return User.withUsername(resUser.getUserId())
+                .password(resUser.getPassword())
                 .authorities(auths)
                 .build();
     }
