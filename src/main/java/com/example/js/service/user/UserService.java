@@ -1,5 +1,6 @@
 package com.example.js.service.user;
 
+import com.example.js.dto.auth.UserRequest;
 import com.example.js.dto.user.UserResponse;
 import com.example.js.mapper.user.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import java.util.List;
 public class UserService {
     private final UserMapper userMapper;
 
-    public UserResponse selectUserById(UserResponse user) {
+    public UserResponse selectUserById(UserRequest user) {
         return userMapper.selectUserById(user);
     }
 
