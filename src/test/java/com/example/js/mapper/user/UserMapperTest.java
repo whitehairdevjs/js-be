@@ -1,5 +1,6 @@
 package com.example.js.mapper.user;
 
+import com.example.js.dto.auth.UserRequest;
 import com.example.js.dto.user.UserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ public class UserMapperTest {
 
     @Test
     public void testSelectUserById() {
-        UserResponse user = new UserResponse();
+        UserRequest user = new UserRequest();
         user.setUserId("user006");
         UserResponse resultUser = userMapper.selectUserById(user);
 

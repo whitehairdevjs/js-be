@@ -1,5 +1,6 @@
 package com.example.js.controller.user;
 
+import com.example.js.dto.auth.UserRequest;
 import com.example.js.dto.user.UserResponse;
 import com.example.js.service.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +25,7 @@ public class UserController {
     )
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping("/info")
-    public UserResponse selectUserById(@RequestBody UserResponse user) {
+    public UserResponse selectUserById(@RequestBody UserRequest user) {
         return userService.selectUserById(user);
     }
 

@@ -1,6 +1,7 @@
 package com.example.js.controller.auth;
 
 import com.example.js.dto.user.UserResponse;
+import com.example.js.service.user.UserService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.example.js.security.JwtTokenProvider;
-import com.example.js.mapper.user.UserMapper;
-import com.example.js.domain.user.DomainUser;
 import com.example.js.dto.auth.LoginRequest;
 import com.example.js.dto.auth.TokenResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +27,7 @@ public class AuthController {
 
     private final AuthenticationManager authManager;
     private final JwtTokenProvider tokenProvider;
-    private final UserMapper userMapper;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest req) {
@@ -38,8 +37,8 @@ public class AuthController {
         );
 
         // ② DB에서 user, roles 조회
-        UserResponse user = userMapper.findByUserId(req.getUserId());
-        List<String> roles = userMapper.findRolesByUserId(user.getUserId());
+        UserResponse user = userService.findByUserId(req.getUserId());
+        List<String> roles = userService.findRolesByUserId(user.getUserId());
 
         // ③ JWT 생성 후 응답
         String token = tokenProvider.createToken(user.getUserId(), roles);
