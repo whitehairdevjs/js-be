@@ -1,6 +1,6 @@
 package com.example.js.service.user;
 
-import com.example.js.dto.auth.UserRequest;
+import com.example.js.dto.user.UserRequest;
 import com.example.js.dto.user.UserResponse;
 import com.example.js.mapper.user.UserMapper;
 import lombok.RequiredArgsConstructor;
