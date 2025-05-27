@@ -51,7 +51,7 @@ public class SecurityConfig {
 
                 // 4) 요청별 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()   // /auth/** 은 모두 허용
+                        .requestMatchers("/auth/**", "/docs/**").permitAll()   // /auth/** 은 모두 허용
                         .anyRequest().authenticated()              // 그 외 인증 필요
                 )
 
