@@ -1,6 +1,6 @@
 package com.example.js.mapper.user;
 
-import com.example.js.dto.auth.UserRequest;
+import com.example.js.dto.user.UserRequest;
 import com.example.js.dto.user.UserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

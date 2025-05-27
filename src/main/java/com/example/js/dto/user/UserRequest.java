@@ -1,4 +1,4 @@
-package com.example.js.dto.auth;
+package com.example.js.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
