@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import com.example.js.mapper.user.UserMapper;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,7 +20,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
-    private final UserMapper userMapper;
     private final UserService userService;
 
     @Override
@@ -32,7 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("User not found: " + userId);
         }
         // DB에서 가져온 role 문자열을 GrantedAuthority 리스트로 변환
-        List<GrantedAuthority> auths = userMapper.findRolesByUserId(resUser.getUserId())
+        List<GrantedAuthority> auths = userService.findRolesByUserId(resUser.getUserId())
                 .stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
