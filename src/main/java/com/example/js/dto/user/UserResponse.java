@@ -16,4 +16,6 @@ public class UserResponse {
     private String zipcode;
     private String address;
     private String addressDetail;
+    private String roleId;
+    private String roleCode;
 }

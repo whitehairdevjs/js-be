@@ -1,105 +1,85 @@
 package com.example.js.security;
 
-import org.springframework.stereotype.Component;
-import org.springframework.beans.factory.annotation.Value;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.io.Decoders;
+import com.example.js.exception.auth.JwtInvalidException;
+import com.example.js.exception.auth.JwtTokenExpiredException;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-/**
- * 1) 로그인 성공 시 createToken() 으로 JWT 생성
- * 2) 요청 때마다 validateToken() 으로 유효성 체크
- * 3) getAuthentication() 으로 Authentication 객체 생성 → SecurityContext 설정
- */
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
-    private String secretKey;        // Base64 인코딩된 비밀키
+    private String secret;
 
     @Value("${jwt.issuer}")
-    private String issuer;           // 토큰 발급자
+    private String issuer;
 
-    @Value("${jwt.expiration}")
-    private long validityInMs;       // 토큰 유효기간 (ms)
+    @Value("${jwt.access-token-expiration}")
+    private long accessTokenValidityInMs;
 
-    // 서명(Signing) Key 생성
-    private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenValidityInMs;
+
+    private Key key;
+
+    @PostConstruct
+    protected void init() {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    // JWT 생성: subject=아이디, roles 클레임 포함
-    public String createToken(String username, List<String> roles) {
-        Claims claims = Jwts.claims().setSubject(username);
-        claims.put("roles", roles);
-        Date now = new Date();
-        Date exp = new Date(now.getTime() + validityInMs);
-
+    public String generateAccessToken(String userId, String role) {
         return Jwts.builder()
-                .setClaims(claims)
+                .setSubject(userId)
+                .claim("role", role)
                 .setIssuer(issuer)
-                .setIssuedAt(now)
-                .setExpiration(exp)
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidityInMs))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    // 토큰 기반으로 Authentication 생성
-    public Authentication getAuthentication(String token) {
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                getUsername(token),
-                "",
-                getRoles(token).stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .toList()
-        );
-        return new UsernamePasswordAuthenticationToken(
-                userDetails, "", userDetails.getAuthorities()
-        );
+    public String generateRefreshToken(String userId) {
+        return Jwts.builder()
+                .setSubject(userId)
+                .setIssuer(issuer)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenValidityInMs))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    // 토큰에서 subject(username) 추출
-    public String getUsername(String token) {
+    public Claims parseClaims(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
+                .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
     }
 
-    // 토큰에서 roles 클레임 추출
-    @SuppressWarnings("unchecked")
-    private List<String> getRoles(String token) {
-        return (List<String>) Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("roles");
-    }
-
-    // 토큰 유효성 검사(만료, 서명)
-    public boolean validateToken(String token) {
+    public boolean isTokenValid(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
-                    .build()
-                    .parseClaimsJws(token);
+            parseClaims(token);
             return true;
+        } catch (ExpiredJwtException e) {
+            throw new JwtTokenExpiredException("Access Token has expired");
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            throw new JwtInvalidException("JWT is invalid");
         }
     }
+
+    public String getUserId(String token) {
+        return parseClaims(token).getSubject();
+    }
+
+    public String getUserRole(String token) {
+        return (String) parseClaims(token).get("role");
+    }
+
 }

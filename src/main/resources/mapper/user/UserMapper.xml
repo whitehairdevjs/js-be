@@ -4,23 +4,25 @@
 <mapper namespace="com.example.js.mapper.user.UserMapper">
     <select id="selectUserById" resultType="com.example.js.dto.user.UserResponse">
         select
-            id,
-            user_id,
-            user_name,
-            "password",
-            user_uuid,
-            mobile_number,
-            birth,
-            zipcode,
-            address,
-            address_detail,
-            access_ip,
-            use_yn,
-            register_date,
-            modify_date
-        from user_info
+            ui.id
+             , ui.user_id
+             , ui.user_name
+             , ui.password
+             , ui.user_uuid
+             , ui.mobile_number
+             , ui.birth
+             , ui.zipcode
+             , ui.address
+             , ui.address_detail
+             , ur.role_id
+             , r.role_code
+        from user_info ui
+            inner join user_roles ur
+                on ur.user_id = ui.user_id
+            inner join roles r
+                on r.role_id = ur.role_id
         where 1 = 1
-        and user_id = #{userId}
+        and ui.user_id = #{userId};
     </select>
 
     <select id="findByUserId" resultType="com.example.js.dto.user.UserResponse">
@@ -29,7 +31,7 @@
             , password
         from user_info
         where 1 = 1
-        and user_id = #{userId}
+        and user_id = #{userId};
     </select>
 
     <select id="findRolesByUserId" resultType="string">
@@ -39,6 +41,6 @@
             inner join roles r
             on ur.role_id = r.role_id
         where 1 = 1
-        and ur.user_id = #{userId}
+        and ur.user_id = #{userId};
     </select>
 </mapper>
