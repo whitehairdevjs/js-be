@@ -1,6 +1,7 @@
 package com.example.js.controller.auth;
 
 import com.example.js.dto.user.UserResponse;
+import com.example.js.service.auth.JwtTokenRedisService;
 import com.example.js.service.user.UserService;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ public class AuthController {
     private final AuthenticationManager authManager;
     private final JwtTokenProvider tokenProvider;
     private final UserService userService;
+    private final JwtTokenRedisService jwtTokenRedisService;
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest req) {
@@ -42,6 +44,7 @@ public class AuthController {
 
         // ③ JWT 생성 후 응답
         String token = tokenProvider.createToken(user.getUserId(), roles);
+        jwtTokenRedisService.saveRefreshToken(user.getUserId(), token, 1000 * 60 * 60 * 24); // 1일
         return ResponseEntity.ok(new TokenResponse(token));
     }
 }
