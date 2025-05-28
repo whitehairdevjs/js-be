@@ -1,20 +1,28 @@
 package com.example.js.controller;
 
 
+import com.example.js.dto.user.UserRequest;
 import com.example.js.service.TestService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.js.service.auth.JwtTokenRedisService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class TestController {
-    @Autowired
-    private TestService testService;
+
+    private final TestService testService;
+    private final JwtTokenRedisService jwtTokenRedisService;
 
     @GetMapping("hello")
     public String hello() {
         return testService.getString();
+    }
+
+    @PostMapping("getRtoken")
+    public String getRtoken(@RequestBody UserRequest userRequest) {
+        System.out.println(userRequest.getUserId());
+        return jwtTokenRedisService.getRefreshToken(userRequest.getUserId());
     }
 }
