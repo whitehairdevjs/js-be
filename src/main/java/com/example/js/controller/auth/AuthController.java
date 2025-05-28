@@ -1,15 +1,17 @@
 package com.example.js.controller.auth;
 
+import com.example.js.dto.auth.TokenRequest;
 import com.example.js.dto.user.UserResponse;
 import com.example.js.service.auth.JwtTokenRedisService;
 import com.example.js.service.user.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.example.js.security.JwtTokenProvider;
 import com.example.js.dto.auth.LoginRequest;
 import com.example.js.dto.auth.TokenResponse;
@@ -26,25 +28,51 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationManager authManager;
-    private final JwtTokenProvider tokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
     private final JwtTokenRedisService jwtTokenRedisService;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest req) {
-        // ① 인증 매니저로 사용자 검증
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.getUserId(), req.getPassword())
-        );
+    public ResponseEntity<TokenResponse> login(@RequestBody LoginRequest loginRequest) {
+        UserResponse user = userService.findByUserId(loginRequest.getUserId());
 
-        // ② DB에서 user, roles 조회
-        UserResponse user = userService.findByUserId(req.getUserId());
-        List<String> roles = userService.findRolesByUserId(user.getUserId());
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("잘못된 로그인 정보");
+        }
 
-        // ③ JWT 생성 후 응답
-        String token = tokenProvider.createToken(user.getUserId(), roles);
-        jwtTokenRedisService.saveRefreshToken(user.getUserId(), token, 1000 * 60 * 60 * 24); // 1일
-        return ResponseEntity.ok(new TokenResponse(token));
+        String accessToken = jwtTokenProvider.generateAccessToken(user.getUserId(), user.getRoleCode());
+        String refreshToken = jwtTokenProvider.generateRefreshToken(user.getUserId());
+
+        jwtTokenRedisService.saveRefreshToken(user.getUserId(), refreshToken, 604800000);  // 7일
+
+        return ResponseEntity.ok(new TokenResponse(accessToken, refreshToken));
     }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenResponse> reissue(@RequestBody TokenRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        if (!jwtTokenProvider.isTokenValid(refreshToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String userId = jwtTokenProvider.getUserId(refreshToken);
+        String savedToken = jwtTokenRedisService.getRefreshToken(userId);
+
+        if (!refreshToken.equals(savedToken)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        List<String> roleList = userService.findRolesByUserId(userId);
+
+        if (roleList.size() <= 0) {
+            throw new IllegalArgumentException("Access Token 갱신중에 사용자의 권한이 존재하지 않습니다.");
+        }
+
+        String accessToken = jwtTokenProvider.generateAccessToken(userId, roleList.get(0));
+
+        return ResponseEntity.ok(new TokenResponse(accessToken, refreshToken));
+    }
+
 }

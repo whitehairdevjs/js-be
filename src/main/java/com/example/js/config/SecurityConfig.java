@@ -1,12 +1,9 @@
 package com.example.js.config;
 
-import com.example.js.security.JwtTokenProvider;
-import com.example.js.security.JwtAuthenticationFilter;
+import com.example.js.security.JwtFilter;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,16 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtTokenProvider tokenProvider;
+    private final JwtFilter jwtFilter;
     private final JwtAuthenticationEntryPoint entryPoint;
-
-    // AuthenticationManager 빈이 생성
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration
-    ) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -56,10 +45,7 @@ public class SecurityConfig {
                 )
 
                 // 5) JWT 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
-                .addFilterBefore(
-                        new JwtAuthenticationFilter(tokenProvider),
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -69,4 +55,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }
