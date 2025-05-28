@@ -11,3 +11,4 @@
 - mybatis
 - JWT
 - OPEN API Swagger Docs
+- Redis
