@@ -1,0 +1,19 @@
+# Gradle 캐시 및 설정 폴더 제외
+.gradle
+
+# IntelliJ 설정 폴더 제외
+.idea
+
+# 빌드된 산출물 제외 (어차피 도커 빌드 시 다시 빌드함)
+build
+!build/libs
+!build/libs/*.jar
+
+# 자바 컴파일 결과물 제외
+out
+
+# 로그 파일 제외
+logs
+
+# IntelliJ에서 자동 생성되는 프로젝트 파일 제외
+*.iml

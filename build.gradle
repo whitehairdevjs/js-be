@@ -41,6 +41,10 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
+tasks.named('bootJar') {
+	archiveFileName = 'js-be.jar'
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
