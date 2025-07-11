@@ -17,7 +17,7 @@ public class UserMapperTest {
     @Test
     public void testSelectUserById() {
         UserRequest user = new UserRequest();
-        user.setUserId("user006");
+        user.setUserId("user001");
         UserResponse resultUser = userMapper.selectUserById(user);
 
         Assertions.assertNotNull(resultUser);
