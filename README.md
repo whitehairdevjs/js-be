@@ -29,6 +29,7 @@
   <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white"/>
   <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black"/>
   <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white"/>
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"/>
 </p>
 
 ---
@@ -41,6 +42,7 @@
 - 🧪 JUnit5 기반 단위 테스트  
 - 🗃️ PostgreSQL + MyBatis 기반 DB 연동
 - 🌀 Spring Batch 예제 구현
+- 🐳 Docker 기반 컨테이너 환경 구성 및 실행 지원
 ---
 
 ## 🧑‍💻 사용 목적
@@ -55,9 +57,9 @@
 
 ## 📌 향후 계획
 
+- [ ] RabbitMQ 예제 구성
 - [ ] CI/CD 파이프라인 구성
 - [ ] 모니터링 및 로깅 시스템 연동  
-- [ ] Dockerfile 작성 및 멀티 프로파일 빌드 구성
 
 🧠 재미있고 도전적인 주제가 떠오른다면, 언제든 새로운 기능을 항해에 추가할 예정입니다.
 
